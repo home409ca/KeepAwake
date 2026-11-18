@@ -1,5 +1,89 @@
 # ☀️ KeepAwake
 
+Lekka aplikacja Windows do utrzymywania komputera w gotowości. Działa w tle, posiada ikonę przy zegarku i oferuje opcjonalny ruch kursora oraz zapamiętywanie ustawień.
+
+## Funkcje
+
+- **Start / Stop** — włączanie i wyłączanie utrzymywania systemu w gotowości.
+- **Minimalizacja do zasobnika systemowego** — dwuklik ikony przywraca okno.
+- **Opcjonalny ruch kursora** — kółko, kierunek losowy, poziomy lub pionowy.
+- **Powrót do pozycji początkowej** po każdym cyklu, z weryfikacją położenia.
+- **Regulacja przerwy, dystansu i prędkości ruchu.**
+- **Test ruchu** — pojedynczy cykl po trzysekundowym odliczaniu.
+- **Zapisywanie ustawień** i przywracanie ich przy kolejnym uruchomieniu.
+
+Domyślne ustawienia: przerwa **60 sekund**, dystans **15 pikseli**, prędkość **400 px/s**. W wariancie „Kółko” dystans oznacza średnicę okręgu.
+
+## Jak aplikacja zapobiega automatycznemu uśpieniu?
+
+Po kliknięciu **Start** aplikacja wywołuje funkcję Windows:
+
+```text
+SetThreadExecutionState(ES_CONTINUOUS | ES_SYSTEM_REQUIRED)
+```
+
+Informuje w ten sposób system, że aplikacja potrzebuje działającego komputera. Żądanie pozostaje aktywne do jego usunięcia lub zakończenia wątku aplikacji.
+
+Windows uwzględnia żądania aplikacji podczas podejmowania decyzji o automatycznym uśpieniu. Sam brak ruchu myszy lub aktywności klawiatury nie musi więc oznaczać, że komputer może przejść w stan uśpienia. [Dokumentacja Microsoft dotycząca warunków uśpienia](https://learn.microsoft.com/en-us/windows/win32/power/system-sleep-criteria).
+
+### Dlaczego może działać mimo limitu ustawionego przez administratora?
+
+Ustawienie „uśpij po 30 minutach” określa czas bezczynności. Samo w sobie nie oznacza, że Windows ma ignorować żądania działających aplikacji.
+
+Jeżeli system zezwala na honorowanie takich żądań, KeepAwake może zapobiec automatycznemu uśpieniu, mimo że limit nadal wynosi 30 minut. Aplikacja nie zmienia tego limitu, zasad grupy ani planu zasilania.
+
+Administrator może jednak osobno wyłączyć honorowanie żądań utrzymania systemu w gotowości. W takim przypadku aplikacja nie gwarantuje zapobiegania uśpieniu. [Dokumentacja Microsoft dotycząca żądań utrzymania systemu w gotowości](https://learn.microsoft.com/en-us/windows-hardware/customize/power-settings/sleep-settings-allow-system-required-requests).
+
+Kliknięcie **Stop** usuwa żądanie przez wywołanie `ES_CONTINUOUS`. Zamknięcie aplikacji również je zwalnia.
+
+### Uśpienie, blokada ekranu i RDP
+
+Żądanie dotyczy **automatycznego uśpienia systemu**. Aplikacja nie wymaga pozostawienia włączonego monitora. Używana funkcja nie blokuje wygaszacza ani ręcznego uśpienia komputera. [Dokumentacja funkcji Windows](https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-setthreadexecutionstate).
+
+Opcjonalny ruch kursora jest oddzielną funkcją. Przesuwa wskaźnik bez klikania, ale nie gwarantuje zapobiegania blokadzie ekranu ani przekroczeniu limitów sesji RDP.
+
+W przypadku pulpitu zdalnego uruchom KeepAwake **na komputerze, który udostępnia RDP**. Uruchomienie aplikacji wyłącznie na laptopie łączącym się z tym komputerem nie utrzyma zdalnego komputera w gotowości.
+
+Sterowanie kursorem wymaga dostępnego pulpitu. Jego działanie po zablokowaniu ekranu lub rozłączeniu RDP nie jest gwarantowane.
+
+## Uruchomienie
+
+1. Pobierz plik EXE z sekcji **Releases**.
+2. Uruchom aplikację na komputerze, który ma pozostać w gotowości.
+3. Opcjonalnie włącz ruch myszy i dostosuj parametry.
+4. Kliknij **Start**.
+
+Minimalizacja ukrywa okno przy zegarku. Dwuklik ikony słoneczka przywraca okno.
+
+- **Test ruchu** — wykonuje jeden pełny cykl po trzech sekundach.
+- **Esc** — wyłącza ruch kursora i anuluje test.
+- **Stop** — zatrzymuje ruch i usuwa żądanie utrzymania systemu w gotowości.
+- **Krzyżyk / Zakończ** — zamyka aplikację i zapisuje ustawienia.
+
+Po ponownym uruchomieniu ustawienia są przywracane. Rozpoczęcie działania wymaga kliknięcia **Start**.
+
+## Ustawienia
+
+Aplikacja zapamiętuje przerwę między ruchami, dystans, prędkość, wariant ruchu i zaznaczenie opcji ruchu kursora.
+
+Ustawienia są przechowywane osobno dla każdego użytkownika w pliku:
+
+```text
+%LOCALAPPDATA%\KeepAwake\settings.xml
+```
+
+## Wymagania
+
+- Windows z **.NET Framework 4.x** — zalecany **4.8**.
+- Bez instalacji.
+
+## Dystrybucja
+
+Repozytorium udostępnia gotową aplikację. Kod źródłowy nie jest publikowany.
+
+________________
+# ☀️ KeepAwake
+
 A lightweight Windows utility that keeps your computer awake, with a system tray icon, optional cursor movement, and persistent user settings.
 
 ## Features
